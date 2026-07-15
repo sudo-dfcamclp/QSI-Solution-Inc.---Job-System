@@ -1,1 +1,1 @@
-QSI
+QSI Inc.
