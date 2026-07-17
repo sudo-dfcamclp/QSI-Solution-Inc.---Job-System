@@ -24,15 +24,21 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Modern Box -->
         <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
 
-            <!-- Header -->
-            <div class="bg-gradient-to-r  from-[#0a5d3c] to-[#0d9488] px-8 py-6">
-                <h1 class="text-3xl font-bold text-white">
-                    Settings
-                </h1>
-                <p class="text-blue-100 mt-2">
-                    Simple modern layout built with Tailwind CSS.
-                </p>
-            </div>
+           <!-- Header -->
+<div class="bg-gradient-to-r from-[#0a5d3c] to-[#0d9488] px-8 py-6 flex items-center justify-between">
+    
+    <!-- Title -->
+    <h1 class="text-3xl font-bold text-white">
+        Settings
+    </h1>
+
+    <!-- Logout Button -->
+    <a href="logout.php" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2.5 rounded-xl transition duration-300 backdrop-blur-sm border border-white/20 shadow-sm">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+    </a>
+
+</div>
 
             <!-- Content -->
             <div class="p-8">
@@ -80,23 +86,6 @@ if (!isset($_SESSION['user_id'])) {
                         This area is intended for your page content, forms,
                         tables, charts, or other dashboard components.
                     </p>
-
-                    <div class="mt-6 flex gap-4">
-                        <button class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
-                            Primary Button
-                        </button>
-
-                        <button class="px-6 py-3 border border-slate-300 rounded-xl hover:bg-slate-100 transition">
-                            Secondary
-                        </button>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
 
 </body>

@@ -1,5 +1,5 @@
+//-----------------------------------------------------------login form + hide password icon
 
-//---------------------------------------------Login Form Script
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('#loginForm');
     const emailInput = document.querySelector('#email');
@@ -8,19 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorDiv = document.querySelector('#loginError');
     const successDiv = document.querySelector('#loginSuccess');
 
-    //  Precise Toggle Password Logic
+    // Precise Toggle Password Logic
     const toggleButtons = document.querySelectorAll('.toggle-password');
 
     toggleButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            // 1. Find the specific input field inside the same 'relative' container
             const input = this.closest('.relative').querySelector('input');
-            
-            // 2. Find the icon inside this specific button
             const icon = this.querySelector('i');
 
             if (input && icon) {
-                // Toggle type
                 if (input.type === 'password') {
                     input.type = 'text';
                     icon.classList.remove('fa-eye');
@@ -34,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Helper function to show messages
+    // Helper function to show standard messages
     function showMessage(element, message, isError = false) {
         element.textContent = message;
         element.classList.remove('hidden');
@@ -49,19 +45,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hideMessages() {
-        errorDiv.classList.add('hidden');
-        successDiv.classList.add('hidden');
+        if(errorDiv) errorDiv.classList.add('hidden');
+        if(successDiv) successDiv.classList.add('hidden');
     }
 
     // Handle Form Submission
     if (loginForm && emailInput && passwordInput && submitBtn) {
         loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Stop default form reload
+            e.preventDefault(); 
             
-            // Clear previous messages
             hideMessages();
 
-            // Basic validation
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
@@ -70,25 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Basic UI Feedback
+            // UI Feedback
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Logging in...';
 
             try {
-                // Send data to backend
                 const response = await fetch('backend/handle-login.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
-                // Check if response is OK
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -96,20 +83,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    // Show success message
+                    // SUCCESS LOGIN
                     showMessage(successDiv, result.message || 'Login successful! Redirecting...');
                     
-                    // Update button
                     submitBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Success!';
                     submitBtn.classList.remove('bg-[#0a5d3c]', 'hover:bg-[#0d9488]');
                     submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                     
                     setTimeout(() => {
-                        window.location.href = 'dashboard.php'; // Redirect to dashboard
+                        window.location.href = result.redirect || 'dashboard.php';
                     }, 1500);
+
+                } else if (result.status === 'pending') {
+                    // PENDING ACCOUNT (SweetAlert2)
+                    resetButton(submitBtn, originalBtnText);
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Account Pending',
+                        text: result.message,
+                        confirmButtonColor: '#0a5d3c'
+                    });
+
                 } else {
-                    // Show error
-                    showMessage(errorDiv, result.message || 'Login failed. Please check your credentials.', true);
+                    // ERROR LOGIN (Wrong pass, banned, etc.)
+                    showMessage(errorDiv, result.message || 'Login failed.', true);
                     resetButton(submitBtn, originalBtnText);
                 }
 

@@ -30,9 +30,6 @@ if (!isset($_SESSION['user_id'])) {
                 <h1 class="text-3xl font-bold text-white">
                     Analytics
                 </h1>
-                <p class="text-blue-100 mt-2">
-                    Simple modern layout built with Tailwind CSS.
-                </p>
             </div>
 
             <!-- Content -->
@@ -82,15 +79,18 @@ if (!isset($_SESSION['user_id'])) {
                         tables, charts, or other dashboard components.
                     </p>
 
-                    <div class="mt-6 flex gap-4">
-                        <button class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
-                            Primary Button
-                        </button>
+                </div>
 
-                        <button class="px-6 py-3 border border-slate-300 rounded-xl hover:bg-slate-100 transition">
-                            Secondary
-                        </button>
-                    </div>
+                    <div class="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-8">
+
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">
+                        Main Content
+                    </h2>
+
+                    <p class="text-slate-600 leading-7">
+                        This area is intended for your page content, forms,
+                        tables, charts, or other dashboard components.
+                    </p>
 
                 </div>
 
