@@ -40,53 +40,46 @@ if (!isset($_SESSION['user_id'])) {
 
 </div>
 
-            <!-- Content -->
-            <div class="p-8">
+           <div class="p-8">
 
-                <!-- Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Modern Edit Info Box -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition duration-300 max-w-2xl mx-auto">
+        
+        <h2 class="text-xl font-semibold text-slate-800 mb-6">
+            Edit Information
+        </h2>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <h2 class="text-xl font-semibold text-slate-800">
-                            Card One
-                        </h2>
-                        <p class="text-slate-500 mt-3">
-                            Place your content here.
-                        </p>
-                    </div>
+        <form class="space-y-5">
+            <!-- Name Field -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
+                <input type="text" id="name" placeholder="Enter your name" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <h2 class="text-xl font-semibold text-slate-800">
-                            Card Two
-                        </h2>
-                        <p class="text-slate-500 mt-3">
-                            Modern responsive design.
-                        </p>
-                    </div>
+            <!-- Email Field -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                <input type="email" id="email" placeholder="Enter your email" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
 
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <h2 class="text-xl font-semibold text-slate-800">
-                            Card Three
-                        </h2>
-                        <p class="text-slate-500 mt-3">
-                            Easily customize with Tailwind.
-                        </p>
-                    </div>
+            <!-- Contact Field -->
+            <div>
+                <label for="contact" class="block text-sm font-medium text-slate-700 mb-1.5">Contact</label>
+                <input type="tel" id="contact" placeholder="Enter your contact number" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+            </div>
 
-                </div>
+            <!-- Save Button -->
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-4 rounded-lg transition duration-300 shadow-sm">
+                    Save Changes
+                </button>
+            </div>
+        </form>
 
-                <!-- Large Content Box -->
-                <div class="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-8">
-
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">
-                        Main Content
-                    </h2>
-
-                    <p class="text-slate-600 leading-7">
-                        This area is intended for your page content, forms,
-                        tables, charts, or other dashboard components.
-                    </p>
     </div>
+
+</div>
+   </div>
 
 </body>
 </html>

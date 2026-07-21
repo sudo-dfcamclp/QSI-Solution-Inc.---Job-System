@@ -77,8 +77,6 @@ async function loadUsers(isBackgroundUpdate = false) {
                     <td class="p-4">
                         <div class="font-medium text-slate-800">${escapeHtml(user.f_name)} ${escapeHtml(user.l_name)}</div>
                     </td>
-                    <td class="p-4 text-slate-600">${escapeHtml(user.email)}</td>
-                    <td class="p-4 text-slate-600">${escapeHtml(user.contact)}</td>
                     <td class="p-4">
                         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full ${statusBadgeClass} capitalize">
                             ${escapeHtml(user.status)}

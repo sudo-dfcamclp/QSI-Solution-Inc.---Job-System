@@ -51,8 +51,6 @@ if (!isset($_SESSION['user_id'])) {
         <thead>
             <tr class="bg-slate-50 border-b border-slate-200">
                 <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Name</th>
-                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Email</th>
-                <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Contact</th>
                 <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Status</th>
                 <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider">Type</th>
                 <th class="p-4 text-sm font-semibold text-slate-600 uppercase tracking-wider text-right">Actions</th>

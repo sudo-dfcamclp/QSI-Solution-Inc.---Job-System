@@ -34,9 +34,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
                 <!-- Jobs -->
                 <li>
-                    <a href="jobs.php"
+                    <a href="joblist.php"
                         class="flex items-center gap-2 px-4 py-2 rounded-lg transition
-                        <?= $currentPage == 'jobs.php'
+                        <?= $currentPage == 'joblist.php'
                             ? 'bg-[#0a5d3c] text-white shadow-md'
                             : 'text-slate-700 hover:text-[#0a5d3c]'; ?>">
                         <i class="fa-solid fa-briefcase"></i>
