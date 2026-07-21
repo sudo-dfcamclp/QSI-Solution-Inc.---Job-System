@@ -34,6 +34,38 @@ try {
         exit; // Stop execution after saving
     }
 
+     // HANDLE PUT: Update an existing job
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        $job_id = intval($input['job_id'] ?? 0);
+        $title = trim($input['title'] ?? '');
+        $description = trim($input['description'] ?? '');
+        $salary = floatval($input['salary'] ?? 0);
+
+        // Validate required fields
+        if ($job_id <= 0) {
+            throw new Exception("Invalid Job ID.");
+        }
+        if (empty($title)) {
+            throw new Exception("Job title is required.");
+        }
+
+        // Call the update function from include_joblist.php
+        $isUpdated = updateJob($pdo, $job_id, $title, $description, $salary);
+
+        if ($isUpdated) {
+            ob_end_clean();
+            echo json_encode([
+                'status'  => 'success',
+                'message' => 'Job updated successfully.'
+            ]);
+        } else {
+            throw new Exception("Failed to update job.");
+        }
+        exit;
+    }
+
 // HANDLE DELETE: Delete a specific job
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $input = json_decode(file_get_contents('php://input'), true);

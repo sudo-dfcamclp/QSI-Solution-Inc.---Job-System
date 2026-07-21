@@ -51,6 +51,35 @@ function insertJob(PDO $pdo, string $title, string $description, float $salary):
     return (int) $pdo->lastInsertId();
 }
 
+
+/**
+ * Update an existing job in the joblist table.
+ * 
+ * @param PDO $pdo The PDO database connection object.
+ * @param int $job_id The ID of the job to update.
+ * @param string $title The new job title.
+ * @param string $description The new job description.
+ * @param float $salary The new job salary.
+ * @return bool True if the job was updated, false otherwise.
+ */
+function updateJob(PDO $pdo, int $job_id, string $title, string $description, float $salary): bool
+{
+    if (empty(trim($title))) {
+        throw new Exception("Job title cannot be empty.");
+    }
+
+    $sql = "UPDATE joblist SET title = :title, description = :description, salary = :salary WHERE job_id = :job_id";
+    $stmt = $pdo->prepare($sql);
+    
+    return $stmt->execute([
+        ':title' => trim($title),
+        ':description' => trim($description),
+        ':salary' => $salary,
+        ':job_id' => $job_id
+    ]);
+}
+
+
 /**
  * Delete a job from the joblist table by ID.
  * 

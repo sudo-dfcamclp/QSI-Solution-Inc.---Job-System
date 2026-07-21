@@ -15,7 +15,6 @@ if (!isset($_SESSION['user_id'])) {
     <title>Job List</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -77,6 +76,7 @@ if (!isset($_SESSION['user_id'])) {
                         <th class="p-3 font-semibold">Description</th>
                         <th class="p-3 font-semibold">Salary</th>
                         <th class="p-3 font-semibold">Date Posted</th>
+                        <th class="p-3 font-semibold text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="jobTableBody" class="text-sm text-slate-700">
@@ -84,6 +84,7 @@ if (!isset($_SESSION['user_id'])) {
                 </tbody>
             </table>
         </div>
+        
     </div>
 
 </div> <!-- End p-8 -->
