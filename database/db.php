@@ -1,5 +1,5 @@
 <?php
-// database/db.php
+date_default_timezone_set('Asia/Manila');
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'qsi_inc');
