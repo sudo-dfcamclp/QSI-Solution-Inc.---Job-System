@@ -57,7 +57,6 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
-<!-- Job List Container (Populated by JS) -->
 <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
     <h3 class="text-xl font-bold text-slate-800 mb-4">Recent Jobs</h3>
     
@@ -91,6 +90,20 @@ if (!isset($_SESSION['user_id'])) {
             </tbody>
         </table>
     </div>
+
+    <!-- PAGINATION CONTROLS (Added) -->
+    <div id="paginationContainer" class="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
+        <button id="prevPageBtn" onclick="changePage(-1)" class="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold transition bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-[#0a5d3c] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-400">
+            <i class="fa-solid fa-chevron-left"></i> Previous
+        </button>
+        
+        <span id="pageInfo" class="text-sm font-medium text-slate-600 bg-slate-100 px-4 py-1.5 rounded-lg border border-slate-200">Page 1 of 1</span>
+        
+        <button id="nextPageBtn" onclick="changePage(1)" class="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold transition bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-[#0a5d3c] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-400">
+            Next <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
 </div>
 
 </div> <!-- End p-8 -->

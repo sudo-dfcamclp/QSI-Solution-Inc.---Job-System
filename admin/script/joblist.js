@@ -1,5 +1,8 @@
 let refreshInterval;
-let lastJobCount = 0; // Track the number of jobs to detect changes
+let lastJobCount = 0; 
+let currentPage = 1;
+const itemsPerPage = 15;
+let allJobsData = []; // Cache for client-side pagination
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Load jobs immediately
@@ -21,6 +24,7 @@ function startRealtimeUpdates() {
         loadJobs(true); // true = background update (silent check)
     }, 5000);
 }
+
 // --- SWEETALERT2 POPUP FOR ADDING ---
 function showAddJobPopup() {
     Swal.fire({
@@ -149,6 +153,7 @@ async function saveJob(jobData) {
 
         if (result.status === 'success') {
             Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 1500, showConfirmButton: false });
+            currentPage = 1; // Reset to page 1 when adding new job
             lastJobCount = 0; 
             loadJobs(); 
         } else {
@@ -226,7 +231,6 @@ async function deleteJob(jobId) {
 
 // --- FETCH JOBS (GET) ---
 async function loadJobs(isBackgroundUpdate = false) {
-    const tableBody = document.getElementById('jobTableBody');
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
     const totalCount = document.getElementById('totalJobsCount');
@@ -248,88 +252,14 @@ async function loadJobs(isBackgroundUpdate = false) {
         }
 
         if (result.status === 'success') {
-            const currentCount = result.data.length;
+            allJobsData = result.data; // Cache all data locally
+            const currentCount = allJobsData.length;
 
             if (totalCount) totalCount.textContent = currentCount;
 
+            // Only re-render if count changed or it's a manual refresh
             if (currentCount !== lastJobCount || !isBackgroundUpdate) {
-                
-                tableBody.innerHTML = ''; 
-                
-                if (currentCount > 0) {
-                    if (emptyState) emptyState.classList.add('hidden');
-
-                    result.data.forEach(job => {
-                        const row = document.createElement('tr');
-                        row.className = "border-b border-slate-100 hover:bg-slate-50 transition align-middle";
-                        
-                        const formattedDate = new Date(job.date_time).toLocaleDateString('en-US', {
-                            year: 'numeric', month: 'short', day: 'numeric'
-                        });
-
-                        row.innerHTML = `
-                            <!-- 1. ID (Sobrang sipit, center) -->
-                            <td class="p-3 font-medium text-slate-500 text-center" style="width: 60px; min-width: 60px;">
-                                #${job.job_id}
-                            </td>
-                            
-                            <!-- 2. Title (Limitado ang lapad, may truncate) -->
-                            <td class="p-3 font-semibold text-slate-800 truncate" style="width: 100px; max-width: 140px;" title="${escapeHtml(job.title)}">
-                                ${escapeHtml(job.title)}
-                            </td>
-                            
-                            <!-- 3. Description (Limitado ang lapad, may truncate) -->
-                            <td class="p-3 text-slate-600 truncate" style="width: 200px; max-width: 100px;" title="${escapeHtml(job.description1)}">
-                                ${escapeHtml(job.description1)}
-                            </td>
-                            
-                            <!-- 4. Job Type (Bagong Column, may badge style) -->
-                            <td class="p-3 text-slate-500 whitespace-nowrap" style="width: 110px;">
-                                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                    ${escapeHtml(job.job_type || 'Full-time')}
-                                </span>
-                            </td>
-                            
-                            <!-- 5. Location -->
-                            <td class="p-3 text-slate-500 whitespace-nowrap truncate" style="width: 130px; max-width: 130px;" title="${escapeHtml(job.location1)}">
-                                ${escapeHtml(job.location1)}
-                            </td>
-                            
-                            <!-- 6. Salary -->
-                            <td class="p-3 text-slate-700 font-medium whitespace-nowrap" style="width: 120px;">
-                                ₱${Number(job.salary1 || 0).toLocaleString()}
-                            </td>
-                            
-                            <!-- 7. Date Posted -->
-                            <td class="p-3 text-slate-500 whitespace-nowrap" style="width: 110px;">
-                                ${formattedDate}
-                            </td>
-                            
-                                            <!-- 8. Actions (Bigger buttons) -->
-                        <td class="p-3 text-center" style="width: 120px; min-width: 120px;">
-                            <div class="flex items-center justify-center gap-3">
-                                <!-- Edit Button -->
-                                <button onclick='editJob(${JSON.stringify(job)})' 
-                                    class="text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-2 rounded-lg transition duration-200 " 
-                                    title="Edit Job">
-                                    <i class="fa-solid fa-pen-to-square text-xl"></i>
-                                </button>
-
-                                <!-- Delete Button -->
-                                <button onclick="deleteJob(${job.job_id})" 
-                                    class="text-red-600 hover:text-red-800 hover:bg-red-100 p-2 rounded-lg transition duration-200 " 
-                                    title="Delete Job">
-                                    <i class="fa-solid fa-trash-can text-xl"></i>
-                                </button>
-                            </div>
-                        </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                } else {
-                    if (emptyState) emptyState.classList.remove('hidden');
-                }
-                
+                renderTablePage(); // Call the pagination renderer
                 lastJobCount = currentCount;
             }
         }
@@ -337,10 +267,94 @@ async function loadJobs(isBackgroundUpdate = false) {
         console.error('Error fetching jobs:', error);
         if (!isBackgroundUpdate && !lastJobCount && loadingState) {
             loadingState.classList.add('hidden');
-            // Updated colspan to 8 dahil 8 columns na ngayon
-            tableBody.innerHTML = `<tr><td colspan="8" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
+            document.getElementById('jobTableBody').innerHTML = `<tr><td colspan="8" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
         }
     }
+}
+
+// --- RENDER TABLE PAGE (PAGINATION LOGIC) ---
+function renderTablePage() {
+    const tableBody = document.getElementById('jobTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    tableBody.innerHTML = ''; 
+    
+    const totalPages = Math.ceil(allJobsData.length / itemsPerPage) || 1;
+    
+    // Ensure currentPage is valid (e.g., if last item was deleted)
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedJobs = allJobsData.slice(startIndex, endIndex);
+
+    if (paginatedJobs.length > 0) {
+        if (emptyState) emptyState.classList.add('hidden');
+
+        paginatedJobs.forEach(job => {
+            const row = document.createElement('tr');
+            row.className = "border-b border-slate-100 hover:bg-slate-50 transition align-middle";
+            
+            const formattedDate = new Date(job.date_time).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+
+            row.innerHTML = `
+                <td class="p-3 font-medium text-slate-500 text-center" style="width: 60px; min-width: 60px;">#${job.job_id}</td>
+                <td class="p-3 font-semibold text-slate-800 truncate" style="width: 140px; max-width: 140px;" title="${escapeHtml(job.title)}">${escapeHtml(job.title)}</td>
+                <td class="p-3 text-slate-600 truncate" style="width: 200px; max-width: 200px;" title="${escapeHtml(job.description1)}">${escapeHtml(job.description1)}</td>
+                <td class="p-3 text-slate-700 font-medium whitespace-nowrap" style="width: 120px;">₱${Number(job.salary1 || 0).toLocaleString()}</td>
+                <td class="p-3 text-slate-500 whitespace-nowrap truncate" style="width: 130px; max-width: 130px;" title="${escapeHtml(job.location1)}">${escapeHtml(job.location1)}</td>
+                <td class="p-3 text-slate-500 whitespace-nowrap" style="width: 110px;">
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                        ${escapeHtml(job.job_type || 'Full-time')}
+                    </span>
+                </td>
+                <td class="p-3 text-slate-500 whitespace-nowrap" style="width: 110px;">${formattedDate}</td>
+                <td class="p-3 text-center" style="width: 120px; min-width: 120px;">
+                    <div class="flex items-center justify-center gap-3">
+                        <button onclick='editJob(${JSON.stringify(job)})' 
+                            class="text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-2 rounded-lg transition duration-200" 
+                            title="Edit Job">
+                            <i class="fa-solid fa-pen-to-square text-xl"></i>
+                        </button>
+                        <button onclick="deleteJob(${job.job_id})" 
+                            class="text-red-600 hover:text-red-800 hover:bg-red-100 p-2 rounded-lg transition duration-200" 
+                            title="Delete Job">
+                            <i class="fa-solid fa-trash-can text-xl"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } else {
+        if (emptyState) emptyState.classList.remove('hidden');
+    }
+
+    // Update Pagination UI
+    if (totalPages <= 1) {
+        paginationContainer.classList.add('hidden');
+    } else {
+        paginationContainer.classList.remove('hidden');
+        document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+        
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+}
+
+// --- CHANGE PAGE ---
+function changePage(direction) {
+    currentPage += direction;
+    renderTablePage();
+    // Smooth scroll back to top of table
+    document.querySelector('.overflow-x-auto').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Helper to prevent XSS

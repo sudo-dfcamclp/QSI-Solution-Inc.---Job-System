@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_id'])) {
     <title>Settings</title>
     <link rel="stylesheet" href="../src/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="min-h-screen bg-slate-100">
@@ -40,46 +41,69 @@ if (!isset($_SESSION['user_id'])) {
 
 </div>
 
-           <div class="p-8">
-
+        <div class="p-8">
     <!-- Modern Edit Info Box -->
-    <div class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition duration-300 max-w-2xl mx-auto">
+    <div class=" rounded-2xl p-8   transition duration-300 max-w-2xl mx-auto">
         
         <h2 class="text-xl font-semibold text-slate-800 mb-6">
             Edit Information
         </h2>
 
-        <form class="space-y-5">
+        <form id="settingsForm" class="space-y-5">
             <!-- Name Field -->
             <div>
-                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
-                <input type="text" id="name" placeholder="Enter your name" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+                <label for="f_name" class="block text-sm font-medium text-slate-700 mb-1.5">First Name</label>
+                <input type="text" id="f_name" name="f_name" disabled class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+            </div>
+
+            <div>
+                <label for="l_name" class="block text-sm font-medium text-slate-700 mb-1.5">Last Name</label>
+                <input type="text" id="l_name" name="l_name" disabled class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
             </div>
 
             <!-- Email Field -->
             <div>
                 <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-                <input type="email" id="email" placeholder="Enter your email" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+                <input type="email" id="email" name="email" disabled class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
             </div>
 
             <!-- Contact Field -->
             <div>
                 <label for="contact" class="block text-sm font-medium text-slate-700 mb-1.5">Contact</label>
-                <input type="tel" id="contact" placeholder="Enter your contact number" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+                <input type="tel" id="contact" name="contact" disabled class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
             </div>
 
-            <!-- Save Button -->
+            <hr class="border-slate-200 my-6">
+
+            <!-- Password Section -->
+            <div>
+                <label for="old_password" class="block text-sm font-medium text-slate-700 mb-1.5">Old Password</label>
+                <input type="password" id="old_password" name="old_password" disabled placeholder="Required to change password" class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+            </div>
+
+            <div>
+                <label for="new_password" class="block text-sm font-medium text-slate-700 mb-1.5">New Password</label>
+                <input type="password" id="new_password" name="new_password" disabled placeholder="Leave blank to keep current" class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+            </div>
+
+            <div>
+                <label for="confirm_password" class="block text-sm font-medium text-slate-700 mb-1.5">Confirm New Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" disabled placeholder="Re-enter new password" class="form-input w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d3c] focus:border-transparent transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+            </div>
+
+            <!-- Action Button -->
             <div class="pt-2">
-                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-4 rounded-lg transition duration-300 shadow-sm">
-                    Save Changes
+                <button type="button" id="actionBtn" class="w-full bg-[#0a5d3c] hover:bg-[#084a2f] text-white font-medium py-3 px-4 rounded-lg transition duration-300 shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Edit Information</span>
                 </button>
             </div>
         </form>
-
     </div>
+</div>
 
 </div>
    </div>
-
+<script src="./script/settings.js"></script>
 </body>
 </html>
