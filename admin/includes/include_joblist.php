@@ -12,7 +12,7 @@ function fetchJobs(PDO $pdo, ?int $job_id = null): array
 {
     if ($job_id !== null) {
         // Fetch a single job by ID
-        $sql = "SELECT job_id, title, description, salary, date_time FROM joblist WHERE job_id = :job_id";
+        $sql = "SELECT job_id, title, description1, salary1, location1, job_type, date_time FROM joblist WHERE job_id = :job_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':job_id' => $job_id]);
         $result = $stmt->fetch();
@@ -21,7 +21,7 @@ function fetchJobs(PDO $pdo, ?int $job_id = null): array
         return $result ? [$result] : [];
     } else {
         // Fetch all jobs, ordered by date_time descending (newest first)
-        $sql = "SELECT job_id, title, description, salary, date_time FROM joblist ORDER BY date_time DESC";
+        $sql = "SELECT job_id, title, description1, salary1, location1, job_type, date_time FROM joblist ORDER BY date_time DESC";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll();
     }
@@ -34,17 +34,36 @@ function fetchJobs(PDO $pdo, ?int $job_id = null): array
  * @param string $title The job title.
  * @param string $description The job description.
  * @param float $salary The job salary.
+ * @param string $location The job location.
+ * @param string $job_type The type of job (e.g., Full-time, Part-time, Contract).
  * @return int The ID of the newly inserted job.
+ * @throws InvalidArgumentException If required fields are empty.
  */
-function insertJob(PDO $pdo, string $title, string $description, float $salary): int
+function insertJob(PDO $pdo, string $title, string $description, float $salary, string $location, string $job_type): int
 {
-    $sql = "INSERT INTO joblist (title, description, salary, date_time) VALUES (:title, :description, :salary, NOW())";
+    // Validate required fields
+    if (empty(trim($title))) {
+        throw new InvalidArgumentException("Job title cannot be empty.");
+    }
+    
+    if (empty(trim($location))) {
+        throw new InvalidArgumentException("Job location cannot be empty.");
+    }
+    
+    if (empty(trim($job_type))) {
+        throw new InvalidArgumentException("Job type cannot be empty.");
+    }
+
+    $sql = "INSERT INTO joblist (title, description1, salary1, location1, job_type, date_time) 
+            VALUES (:title, :description, :salary, :location, :job_type, NOW())";
     $stmt = $pdo->prepare($sql);
     
     $stmt->execute([
-        ':title' => $title,
-        ':description' => $description,
-        ':salary' => $salary
+        ':title' => trim($title),
+        ':description' => trim($description),
+        ':salary' => $salary,
+        ':location' => trim($location),
+        ':job_type' => trim($job_type)
     ]);
 
     // Return the ID of the newly created job so we can use it if needed
@@ -60,21 +79,41 @@ function insertJob(PDO $pdo, string $title, string $description, float $salary):
  * @param string $title The new job title.
  * @param string $description The new job description.
  * @param float $salary The new job salary.
+ * @param string $location The new job location.
+ * @param string $job_type The new job type.
  * @return bool True if the job was updated, false otherwise.
+ * @throws InvalidArgumentException If required fields are empty.
  */
-function updateJob(PDO $pdo, int $job_id, string $title, string $description, float $salary): bool
+function updateJob(PDO $pdo, int $job_id, string $title, string $description, float $salary, string $location, string $job_type): bool
 {
+    // Validate job_id
+    if ($job_id <= 0) {
+        throw new InvalidArgumentException("Invalid job ID.");
+    }
+    
+    // Validate required fields
     if (empty(trim($title))) {
-        throw new Exception("Job title cannot be empty.");
+        throw new InvalidArgumentException("Job title cannot be empty.");
+    }
+    
+    if (empty(trim($location))) {
+        throw new InvalidArgumentException("Job location cannot be empty.");
+    }
+    
+    if (empty(trim($job_type))) {
+        throw new InvalidArgumentException("Job type cannot be empty.");
     }
 
-    $sql = "UPDATE joblist SET title = :title, description = :description, salary = :salary WHERE job_id = :job_id";
+    $sql = "UPDATE joblist SET title = :title, description1 = :description, salary1 = :salary, 
+            location1 = :location, job_type = :job_type WHERE job_id = :job_id";
     $stmt = $pdo->prepare($sql);
     
     return $stmt->execute([
         ':title' => trim($title),
         ':description' => trim($description),
         ':salary' => $salary,
+        ':location' => trim($location),
+        ':job_type' => trim($job_type),
         ':job_id' => $job_id
     ]);
 }
@@ -86,9 +125,15 @@ function updateJob(PDO $pdo, int $job_id, string $title, string $description, fl
  * @param PDO $pdo The PDO database connection object.
  * @param int $job_id The ID of the job to delete.
  * @return bool True if the job was deleted, false otherwise.
+ * @throws InvalidArgumentException If job_id is invalid.
  */
 function deleteJob(PDO $pdo, int $job_id): bool
 {
+    // Validate job_id
+    if ($job_id <= 0) {
+        throw new InvalidArgumentException("Invalid job ID.");
+    }
+
     $sql = "DELETE FROM joblist WHERE job_id = :job_id";
     $stmt = $pdo->prepare($sql);
     

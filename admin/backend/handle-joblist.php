@@ -16,14 +16,19 @@ try {
         $title = trim($input['title'] ?? '');
         $description = trim($input['description'] ?? '');
         $salary = floatval($input['salary'] ?? 0);
+        $location = trim($input['location'] ?? '');
+        $job_type = trim($input['job_type'] ?? 'Full-time'); // Default to Full-time if not provided
 
         // Validate required fields
         if (empty($title)) {
             throw new Exception("Job title is required.");
         }
+        if (empty($location)) {
+            throw new Exception("Job location is required.");
+        }
 
         // 3. USE THE REUSABLE FUNCTION instead of raw SQL
-        $new_job_id = insertJob($pdo, $title, $description, $salary);
+        $new_job_id = insertJob($pdo, $title, $description, $salary, $location, $job_type);
 
         ob_end_clean();
         echo json_encode([
@@ -42,6 +47,8 @@ try {
         $title = trim($input['title'] ?? '');
         $description = trim($input['description'] ?? '');
         $salary = floatval($input['salary'] ?? 0);
+        $location = trim($input['location'] ?? '');
+        $job_type = trim($input['job_type'] ?? 'Full-time'); // Default to Full-time if not provided
 
         // Validate required fields
         if ($job_id <= 0) {
@@ -50,9 +57,12 @@ try {
         if (empty($title)) {
             throw new Exception("Job title is required.");
         }
+        if (empty($location)) {
+            throw new Exception("Job location is required.");
+        }
 
         // Call the update function from include_joblist.php
-        $isUpdated = updateJob($pdo, $job_id, $title, $description, $salary);
+        $isUpdated = updateJob($pdo, $job_id, $title, $description, $salary, $location, $job_type);
 
         if ($isUpdated) {
             ob_end_clean();
@@ -66,7 +76,7 @@ try {
         exit;
     }
 
-// HANDLE DELETE: Delete a specific job
+    // HANDLE DELETE: Delete a specific job
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $input = json_decode(file_get_contents('php://input'), true);
         $job_id = intval($input['job_id'] ?? 0);
@@ -99,8 +109,10 @@ try {
         $cleanJobs[] = [
             'job_id'      => $job['job_id'],
             'title'       => $job['title'] ?? 'No Title',
-            'description' => $job['description'] ?? '',
-            'salary'      => $job['salary'] ?? 0,
+            'description1' => $job['description1'] ?? '',
+            'salary1'     => $job['salary1'] ?? 0,
+            'location1'   => $job['location1'] ?? 'N/A',
+            'job_type'    => $job['job_type'] ?? 'Full-time',
             'date_time'   => $job['date_time'] ?? 'Unknown Date'
         ];
     }

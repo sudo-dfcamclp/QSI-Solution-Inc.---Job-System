@@ -57,35 +57,41 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
-
-    <!-- Job List Container (Populated by JS) -->
-    <div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
-        <h3 class="text-xl font-bold text-slate-800 mb-4">Recent Jobs</h3>
-        <div id="loadingState" class="text-center py-8 text-slate-500">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i> Loading jobs...
-        </div>
-        <div id="emptyState" class="hidden text-center py-8 text-slate-500">
-            No jobs found. Click "Add Job" to create one.
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-slate-500 text-sm border-b border-slate-200">
-                        <th class="p-3 font-semibold">ID</th>
-                        <th class="p-3 font-semibold">Title</th>
-                        <th class="p-3 font-semibold">Description</th>
-                        <th class="p-3 font-semibold">Salary</th>
-                        <th class="p-3 font-semibold">Date Posted</th>
-                        <th class="p-3 font-semibold text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="jobTableBody" class="text-sm text-slate-700">
-                    <!-- Rows will be injected here by JS -->
-                </tbody>
-            </table>
-        </div>
-        
+<!-- Job List Container (Populated by JS) -->
+<div class="bg-slate-50 rounded-xl border border-slate-200 p-6">
+    <h3 class="text-xl font-bold text-slate-800 mb-4">Recent Jobs</h3>
+    
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-8 text-slate-500">
+        <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i> Loading jobs...
     </div>
+    
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-8 text-slate-500">
+        No jobs found. Click "Add Job" to create one.
+    </div>
+    
+    <!-- Table Container -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-slate-500 text-sm border-b border-slate-200 bg-slate-100">
+                    <th class="p-3 font-semibold w-16">ID</th>
+                    <th class="p-3 font-semibold">Title</th>
+                    <th class="p-3 font-semibold max-w-xs">Description</th>
+                    <th class="p-3 font-semibold">Salary</th>
+                    <th class="p-3 font-semibold">Location</th>
+                    <th class="p-3 font-semibold">Job Type</th>
+                    <th class="p-3 font-semibold">Date Posted</th>
+                    <th class="p-3 font-semibold text-center w-24">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="jobTableBody" class="text-sm text-slate-700">
+                <!-- Rows will be injected here by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
 </div> <!-- End p-8 -->
 
