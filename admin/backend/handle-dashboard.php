@@ -5,112 +5,82 @@ header('Content-Type: application/json');
 require_once '../../database/db.php';
 require_once '../includes/include_joblist.php';
 
-try {
-    // 1. Fetch all jobs using the reusable function from include_joblist.php
-    $allJobs = fetchJobs($pdo);
+// CHANGE THIS LINE to match your filename
+require_once '../includes/include_user.php'; 
 
-    // 2. Initialize Analytics Arrays
-    $currentYear = date('Y');
+try {
+    // 1. Total Jobs
+    $totalJobs = (int)$pdo->query("SELECT COUNT(*) FROM joblist")->fetchColumn();
+
+    // 2. Total Admins (Using the function from include_user.php)
+    $totalAdmins = getAdminCount($pdo);
+
+    // ... rest of the code remains the same ...
     
-    // Yearly: Jan-Dec (Initialize with 0)
+    // 3. Latest Job Post
+    $latestJobStmt = $pdo->query("SELECT title, date_time FROM joblist ORDER BY date_time DESC LIMIT 1");
+    $latestJob = $latestJobStmt->fetch(PDO::FETCH_ASSOC);
+    
+    $latestJobTitle = $latestJob ? $latestJob['title'] : 'No jobs yet';
+    $latestJobDate = $latestJob ? date('M d, Y', strtotime($latestJob['date_time'])) : 'N/A';
+
+    // ... Analytics logic ...
+    $allJobs = fetchJobs($pdo);
+    $currentYear = date('Y');
+    $currentDate = new DateTime();
     $yearlyCounts = array_fill(0, 12, 0); 
     $monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // Monthly: Last 6 Months
     $monthlyLabels = [];
     $monthlyCounts = [];
     for ($i = 5; $i >= 0; $i--) {
-        $date = strtotime("-$i months");
-        $monthlyLabels[] = date('M Y', $date); // e.g., "Jul 2024"
-        $monthlyCounts[] = 0;
+        $d = clone $currentDate;
+        $d->modify("-$i months");
+        $monthlyLabels[] = $d->format('M Y');
+        $monthlyCounts[$d->format('Y-m')] = 0;
     }
-
-    // Weekly: Last 7 Days
     $weeklyLabels = [];
     $weeklyCounts = [];
     for ($i = 6; $i >= 0; $i--) {
-        $date = strtotime("-$i days");
-        $weeklyLabels[] = date('D', $date); // e.g., "Mon"
-        $weeklyCounts[] = 0;
+        $d = clone $currentDate;
+        $d->modify("-$i days");
+        $weeklyLabels[] = $d->format('D');
+        $weeklyCounts[$d->format('Y-m-d')] = 0;
     }
+    $typeCounts = ['Full-Time' => 0, 'Hybrid' => 0, 'On-site' => 0];
 
-    // Job Type Counts
-    $typeCounts = [
-        'Full-Time' => 0,
-        'Hybrid'    => 0,
-        'On-site'   => 0
-    ];
-
-    // 3. Process Each Job
     foreach ($allJobs as $job) {
         $jobDate = new DateTime($job['date_time']);
         $jobYear = (int)$jobDate->format('Y');
-        $jobMonthIndex = (int)$jobDate->format('m') - 1; // 0-11
+        $jobMonthIndex = (int)$jobDate->format('m') - 1;
+        $jobYM = $jobDate->format('Y-m');
+        $jobYMD = $jobDate->format('Y-m-d');
         $jobType = $job['job_type'] ?? 'Full-Time';
 
-        // A. Yearly Logic (Current Year Only)
-        if ($jobYear == $currentYear) {
-            $yearlyCounts[$jobMonthIndex]++;
-        }
-
-        // B. Monthly Logic (Last 6 Months)
-        // Check if job falls into any of the last 6 month buckets
-        for ($i = 0; $i < 6; $i++) {
-            $targetDate = strtotime("-$i months");
-            if ($jobDate->format('Y-m') == date('Y-m', $targetDate)) {
-                // Index 0 is 5 months ago, Index 5 is current month. 
-                // We need to map this correctly to our array which was built backwards.
-                // Our array: [5 months ago, 4, 3, 2, 1, Current]
-                $monthlyCounts[$i]++; 
-                break;
-            }
-        }
-
-        // C. Weekly Logic (Last 7 Days)
-        for ($i = 0; $i < 7; $i++) {
-            $targetDate = strtotime("-$i days");
-            if ($jobDate->format('Y-m-d') == date('Y-m-d', $targetDate)) {
-                // Our array: [6 days ago, 5, 4, 3, 2, 1, Today]
-                $weeklyCounts[$i]++;
-                break;
-            }
-        }
-
-        // D. Job Type Logic
-        if (isset($typeCounts[$jobType])) {
-            $typeCounts[$jobType]++;
-        } else {
-            // Handle unexpected types or group them
-            $typeCounts['Other'] = ($typeCounts['Other'] ?? 0) + 1;
-        }
+        if ($jobYear == $currentYear) $yearlyCounts[$jobMonthIndex]++;
+        if (isset($monthlyCounts[$jobYM])) $monthlyCounts[$jobYM]++;
+        if (isset($weeklyCounts[$jobYMD])) $weeklyCounts[$jobYMD]++;
+        if (isset($typeCounts[$jobType])) $typeCounts[$jobType]++;
     }
 
-    // 4. Return JSON Response
     echo json_encode([
         'status' => 'success',
         'data' => [
-            'yearly' => [
-                'labels' => $monthNames,
-                'counts' => $yearlyCounts
+            'total_jobs' => $totalJobs,
+            'total_admins' => $totalAdmins,
+            'latest_job' => [
+                'title' => $latestJobTitle,
+                'date' => $latestJobDate
             ],
-            'monthly' => [
-                'labels' => $monthlyLabels,
-                'counts' => $monthlyCounts
-            ],
-            'weekly' => [
-                'labels' => $weeklyLabels,
-                'counts' => $weeklyCounts
-            ],
-            'types' => $typeCounts,
-            'total' => count($allJobs)
+            'yearly' => ['labels' => $monthNames, 'counts' => $yearlyCounts],
+            'monthly' => ['labels' => $monthlyLabels, 'counts' => array_values($monthlyCounts)],
+            'weekly' => ['labels' => $weeklyLabels, 'counts' => array_values($weeklyCounts)],
+            'types' => $typeCounts
         ]
     ]);
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+    // This will help us see if there is an error
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
 ?>

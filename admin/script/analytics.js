@@ -3,10 +3,12 @@
 // Path: C:\xampp\htdocs\qsi_inc\admin\script\analytics.js
 // ============================================
 
+// 1. DECLARE ALL CHART INSTANCES HERE (Fixed the error)
 let lineChartInstance = null;
 let barChartInstance = null;
 let pieChartInstance = null;
-let cachedAnalyticsData = null; // Cache data so we don't re-fetch on every click
+
+let cachedAnalyticsData = null;
 
 // ============================================
 // FETCH DATA FROM BACKEND
@@ -29,7 +31,7 @@ async function fetchAnalyticsData() {
 }
 
 // ============================================
-// LINE CHART (Called by dashboard.js when button clicked)
+// LINE CHART
 // ============================================
 function renderLineChart(period) {
     if (!cachedAnalyticsData) return;
@@ -40,7 +42,6 @@ function renderLineChart(period) {
     // Destroy existing chart
     if (lineChartInstance) lineChartInstance.destroy();
 
-    // Pick data based on period
     let labels = [];
     let counts = [];
 
@@ -55,7 +56,7 @@ function renderLineChart(period) {
         counts = cachedAnalyticsData.yearly.counts;
     }
 
-    // Smart Max with "Puwang" (Space)
+    // Smart Max with "Puwang"
     const maxDataValue = Math.max(...counts, 0);
     let niceMax = 10;
     
@@ -89,10 +90,7 @@ function renderLineChart(period) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: {
-                duration: 800,
-                easing: 'easeOutQuart'
-            },
+            animation: { duration: 800, easing: 'easeOutQuart' },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -110,10 +108,7 @@ function renderLineChart(period) {
                 y: {
                     beginAtZero: true,
                     max: niceMax,
-                    ticks: {
-                        stepSize: 1,
-                        font: { size: 11 }
-                    },
+                    ticks: { stepSize: 1, font: { size: 11 } },
                     grid: { color: 'rgba(0,0,0,0.05)' }
                 },
                 x: {
@@ -132,6 +127,7 @@ function renderBarChart(fullTime, hybrid, onsite) {
     const ctx = document.getElementById('barChart');
     if (!ctx) return;
 
+    // Destroy existing chart
     if (barChartInstance) barChartInstance.destroy();
 
     barChartInstance = new Chart(ctx, {
@@ -175,6 +171,7 @@ function renderPieChart(fullTime, hybrid, onsite) {
     const ctx = document.getElementById('pieChart');
     if (!ctx) return;
 
+    // Destroy existing chart
     if (pieChartInstance) pieChartInstance.destroy();
 
     const total = fullTime + hybrid + onsite;
@@ -216,7 +213,7 @@ function renderPieChart(fullTime, hybrid, onsite) {
 }
 
 // ============================================
-// INITIALIZE ALL CHARTS (Called once on page load)
+// INITIALIZE ALL CHARTS
 // ============================================
 async function initializeCharts() {
     const data = await fetchAnalyticsData();

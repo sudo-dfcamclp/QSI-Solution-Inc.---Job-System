@@ -110,4 +110,21 @@ function deleteUser(PDO $pdo, int $user_id): bool
         return false;
     }
 }
+
+/**
+ * Get the total count of Admin and Super Admin users.
+ * 
+ * @param PDO $pdo The PDO database connection object.
+ * @return int The total count of admin/super_admin users.
+ */
+function getAdminCount(PDO $pdo): int 
+{
+    // Counts user_id where user_type is either 'admin' or 'super_admin'
+    $sql = "SELECT COUNT(user_id) FROM users WHERE user_type IN ('admin', 'super_admin')";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    
+    return (int) $stmt->fetchColumn();
+}
 ?>

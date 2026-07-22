@@ -1,5 +1,3 @@
-//------------------------------------------------------------realtime psuedo code - polling type
-
 let refreshInterval; // Variable to store the timer
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,8 +36,8 @@ async function loadUsers(isBackgroundUpdate = false) {
     // Only show loading spinner if it's NOT a background update
     if (!isBackgroundUpdate) {
         tableBody.innerHTML = '';
-        loadingState.classList.remove('hidden');
-        emptyState.classList.add('hidden');
+        if (loadingState) loadingState.classList.remove('hidden');
+        if (emptyState) emptyState.classList.add('hidden');
     }
 
     try {
@@ -52,7 +50,7 @@ async function loadUsers(isBackgroundUpdate = false) {
 
         const result = await response.json();
 
-        if (!isBackgroundUpdate) {
+        if (!isBackgroundUpdate && loadingState) {
             loadingState.classList.add('hidden');
         }
 
@@ -86,31 +84,107 @@ async function loadUsers(isBackgroundUpdate = false) {
                         ${escapeHtml(user.user_type)}
                     </td>
                     <td class="p-4 text-right">
-                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
+                            <!-- Edit Icon Button -->
+                            <button onclick="editUser(${user.user_id}, '${escapeHtml(user.user_type)}')" 
+                                class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded-lg transition duration-200" 
+                                title="Edit User Type">
+                                <i class="fa-solid fa-pen-to-square text-2xl"></i> <!-- Changed from text-lg to text-xl -->
+                            </button>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         } else {
             if (!isBackgroundUpdate || tableBody.children.length === 0) {
-                emptyState.classList.remove('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
             }
         }
 
     } catch (error) {
         console.error('Error fetching users:', error);
         if (!isBackgroundUpdate) {
-            loadingState.classList.add('hidden');
-            // Updated colspan to 6 to match the new number of columns
-            tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
+            if (loadingState) loadingState.classList.add('hidden');
+            // Updated colspan to 4 to match the 4 columns in your HTML
+            tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
         }
     }
 }
 
-// Helper to prevent XSS attacks
+// ============================================
+// SWEETALERT2: EDIT USER TYPE
+// ============================================
+function editUser(userId, currentType) {
+    Swal.fire({
+        title: 'Edit User Type',
+        html: `
+            <label class="block text-left text-sm font-medium text-slate-700 mb-1">Select User Type</label>
+            <select id="swal-user-type" class="swal2-input" style="width: 100%; box-sizing: border-box; margin: 0; background-color: white;">
+                <option value="user" ${currentType === 'user' ? 'selected' : ''}>User</option>
+                <option value="admin" ${currentType === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#0a5d3c',
+        cancelButtonColor: '#d33',
+        focusConfirm: false,
+        preConfirm: () => {
+            const userType = document.getElementById('swal-user-type').value;
+            if (!userType) {
+                Swal.showValidationMessage('Please select a user type');
+                return false;
+            }
+            return { user_id: userId, user_type: userType };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            saveUserTypeUpdate(result.value);
+        }
+    });
+}
+
+// ============================================
+// SAVE UPDATED USER TYPE (PUT Request)
+// ============================================
+async function saveUserTypeUpdate(userData) {
+    Swal.fire({ title: 'Saving...', didOpen: () => { Swal.showLoading(); } });
+
+    try {
+        // Note: Ensure your backend/handle-account.php handles the 'PUT' method for updates
+        const response = await fetch('backend/handle-account.php', {
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Updated!', 
+                text: 'User type updated successfully.', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
+            // Refresh the table to show the new data
+            loadUsers(); 
+        } else {
+            throw new Error(result.message || 'Failed to update user type');
+        }
+    } catch (error) {
+        console.error('Update error:', error);
+        Swal.fire({ icon: 'error', title: 'Error', text: error.message || 'An unexpected error occurred.' });
+    }
+}
+
+// ============================================
+// HELPER: Prevent XSS attacks
+// ============================================
 function escapeHtml(text) {
     if (!text) return '';
-    return text
+    return String(text)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
