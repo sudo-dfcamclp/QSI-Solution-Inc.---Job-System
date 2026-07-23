@@ -501,17 +501,20 @@ a {
   padding: 24px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-subtle);
+  display: block;
 }
 
 .search-row {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .input-with-icon {
   position: relative;
-  flex: 1;
+  flex: 1 1 220px;
+  min-width: 220px;
   display: flex;
   align-items: center;
 }
@@ -524,7 +527,9 @@ a {
 }
 
 .input-with-icon input {
+  display: block;
   width: 100%;
+  min-height: 48px;
   padding: 16px 16px 16px 50px;
   border: 1px solid transparent;
   background-color: var(--bg-light);
@@ -1230,10 +1235,14 @@ a {
 
   .search-row {
     gap: 6px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 
   .input-with-icon {
     margin-bottom: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
   }
 
   .search-row input {
@@ -1252,6 +1261,8 @@ a {
     padding: 8px !important;
     font-size: 0.8rem !important;
     height: 36px !important;
+    width: 100% !important;
+    justify-content: center !important;
   }
 
   .filter-toggle-row {

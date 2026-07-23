@@ -293,11 +293,143 @@
                 </button>
               </div>
             </div>
-
-            <!-- Populated Dynamically via script.js -->
-            <div class="jobs-carousel-viewport">
+            <div class="jobs-carousel-viewport">  
               <div class="jobs-list" id="jobs-cards-target">
-                <!-- Dynamically inserted cards go here -->
+
+
+            <?php
+            include("../../qsi_inc/user/config.php");
+            $delete_select = "SELECT * FROM joblist";
+            $joblist_ID = mysqli_query($conn, $delete_select);
+              while ($Listrow1 = mysqli_fetch_array($joblist_ID)) {
+            ?>
+                <div class="card job-card" data-type="full-time" data-title="<?php echo $Listrow1['title']; ?>" data-location="cavite">
+                  <div class="job-card-header">
+                    <div>
+                      <h3 class="job-title"><?php echo $Listrow1['title']; ?></h3>
+                      <p class="job-company"><?php echo $Listrow1['company1']; ?></p>
+                    </div>
+                    <span class="status-pill <?php echo $Listrow1['job_type']; ?>"><?php echo $Listrow1['job_type']; ?></span>
+                  </div>
+                  <p class="job-desc"><?php echo $Listrow1['description1']; ?></p>
+                  <div class="job-meta">
+                    <span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      <?php echo $Listrow1['location1']; ?>
+                    </span>
+                    <span>₱<?php echo $Listrow1['salary1']; ?></span>
+                    <span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <?php echo $Listrow1['date_time']; ?>
+                    </span>
+                  </div>
+                </div>
+              <?php
+              }
+              ?>
+  <!-- Additional job cards can be added here -
+
+                <div class="card job-card" data-type="hybrid" data-title="recruitment coordinator" data-location="mandaluyong">
+                  <div class="job-card-header">
+                    <div>
+                      <h3 class="job-title">Recruitment Coordinator</h3>
+                      <p class="job-company">QuestServ Solutions Inc.</p>
+                    </div>
+                    <span class="status-pill hybrid">Hybrid</span>
+                  </div>
+                  <p class="job-desc">Coordinate interviews, schedule screenings, and organize onboarding schedules for active industrial partner locations. Maintain applicant databases efficiently.</p>
+                  <div class="job-meta">
+                    <span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      Mandaluyong
+                    </span>
+                    <span>₱22,000 / mo</span>
+                    <span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      1 day ago
+                    </span>
+                  </div>
+                </div>
+
+
+
+
+
+
+                  <div class="card job-card" data-type="full-time" data-title="warehouse associate" data-location="taguig">
+                    <div class="job-card-header">
+                      <div>
+                        <h3 class="job-title">Warehouse Associate</h3>
+                        <p class="job-company">QuestServ Solutions Inc.</p>
+                      </div>
+                      <span class="status-pill full-time">Full-time</span>
+                    </div>
+                    <p class="job-desc">Perform physical logistics operations including cargo staging, manual inventory checks, container receipt documentation, and general stock assembly in logistics centers.</p>
+                    <div class="job-meta">
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Taguig
+                      </span>
+                      <span>₱17,500 / mo</span>
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        2 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card job-card" data-type="on-site" data-title="quality control inspector" data-location="cavite">
+                    <div class="job-card-header">
+                      <div>
+                        <h3 class="job-title">Quality Control Inspector</h3>
+                        <p class="job-company">QuestServ Solutions Inc.</p>
+                      </div>
+                      <span class="status-pill on-site">On-site</span>
+                    </div>
+                    <p class="job-desc">Assess physical metrics of batch outputs against standardized manufacturing blueprints. Spot defects, log anomalies, and route compliance checklists.</p>
+                    <div class="job-meta">
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Cavite
+                      </span>
+                      <span>₱19,000 / mo</span>
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        3 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card job-card" data-type="on-site" data-title="hr assistant" data-location="taguig">
+                    <div class="job-card-header">
+                      <div>
+                        <h3 class="job-title">HR Assistant</h3>
+                        <p class="job-company">QuestServ Solutions Inc.</p>
+                      </div>
+                      <span class="status-pill on-site">On-site</span>
+                    </div>
+                    <p class="job-desc">Assist with standard employee onboarding, gather required statutory identification clearings, arrange document packets, and support basic benefits routing.</p>
+                    <div class="job-meta">
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Taguig
+                      </span>
+                      <span>₱20,000 / mo</span>
+                      <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        4 days ago
+                      </span>
+                    </div>
+                  </div>
+  -------------------->
+
+
+
+
+
+
+
+
               </div>
             </div>
 

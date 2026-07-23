@@ -289,63 +289,8 @@ function initMobileNav() {
  */
 function initJobsEngine() {
   const jobsListWrapper = document.getElementById("jobs-cards-target");
-  if (!jobsListWrapper) return; // Exit if not on the jobs page
+  if (!jobsListWrapper) return;
 
-  // Client-Side Database Array
-  const jobs = [
-    {
-      id: 1,
-      title: "Production Staff",
-      company: "QuestServ Solutions Inc.",
-      description: "Support daily operations for manufacturing and warehouse clients across key Metro Manila sites. Monitor machinery, manage cleanroom components, and maintain safety standards.",
-      type: "Full-time",
-      location: "Cavite",
-      salary: "₱18,000",
-      posted: "Just now"
-    },
-    {
-      id: 2,
-      title: "Recruitment Coordinator",
-      company: "QuestServ Solutions Inc.",
-      description: "Coordinate interviews, schedule screenings, and organize onboarding schedules for active industrial partner locations. Maintain applicant databases efficiently.",
-      type: "Hybrid",
-      location: "Mandaluyong",
-      salary: "₱22,000",
-      posted: "1 day ago"
-    },
-    {
-      id: 3,
-      title: "Warehouse Associate",
-      company: "QuestServ Solutions Inc.",
-      description: "Perform physical logistics operations including cargo staging, manual inventory checks, container receipt documentation, and general stock assembly in logistics centers.",
-      type: "Full-time",
-      location: "Taguig",
-      salary: "₱17,500",
-      posted: "2 days ago"
-    },
-    {
-      id: 4,
-      title: "Quality Control Inspector",
-      company: "QuestServ Solutions Inc.",
-      description: "Assess physical metrics of batch outputs against standardized manufacturing blueprints. Spot defects, log anomalies, and route compliance checklists.",
-      type: "On-site",
-      location: "Cavite",
-      salary: "₱19,000",
-      posted: "3 days ago"
-    },
-    {
-      id: 5,
-      title: "HR Assistant",
-      company: "QuestServ Solutions Inc.",
-      description: "Assist with standard employee onboarding, gather required statutory identification clearings, arrange document packets, and support basic benefits routing.",
-      type: "On-site",
-      location: "Taguig",
-      salary: "₱20,000",
-      posted: "4 days ago"
-    }
-  ];
-
-  // DOM Elements
   const roleSearch = document.getElementById("role-search");
   const locationSearch = document.getElementById("location-search");
   const searchBtn = document.getElementById("search-btn");
@@ -354,14 +299,12 @@ function initJobsEngine() {
   const fallbackState = document.getElementById("no-jobs-fallback");
   const jobsCountBadge = document.getElementById("jobs-count");
 
-  // Carousel Controls
   const prevBtn = document.getElementById("jobs-prev-btn");
   const nextBtn = document.getElementById("jobs-next-btn");
   let currentJobIndex = 0;
 
-  // Carousel Render Update
   function updateJobsCarousel() {
-    const cards = jobsListWrapper.querySelectorAll(".job-card");
+    const visibleCards = Array.from(jobsListWrapper.querySelectorAll(".job-card")).filter(card => card.style.display !== "none");
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
@@ -371,14 +314,14 @@ function initJobsEngine() {
       return;
     }
 
-    if (cards.length === 0) {
+    if (visibleCards.length === 0) {
       if (prevBtn) prevBtn.disabled = true;
       if (nextBtn) nextBtn.disabled = true;
       return;
     }
 
     const cardsToShow = 2;
-    const maxIndex = Math.max(0, cards.length - cardsToShow);
+    const maxIndex = Math.max(0, visibleCards.length - cardsToShow);
 
     if (currentJobIndex > maxIndex) {
       currentJobIndex = maxIndex;
@@ -390,10 +333,10 @@ function initJobsEngine() {
     if (prevBtn) prevBtn.disabled = currentJobIndex === 0;
     if (nextBtn) nextBtn.disabled = currentJobIndex === maxIndex;
 
-    const firstCard = cards[0];
+    const firstCard = visibleCards[0];
     if (firstCard) {
       const cardWidth = firstCard.getBoundingClientRect().width;
-      const gap = 20; // gap specified in CSS
+      const gap = 20;
       const offset = currentJobIndex * (cardWidth + gap);
       jobsListWrapper.style.transform = `translateX(-${offset}px)`;
     } else {
@@ -401,7 +344,40 @@ function initJobsEngine() {
     }
   }
 
-  // Filter Toggle Handling
+  function renderJobsList() {
+    const cards = jobsListWrapper.querySelectorAll(".job-card");
+    const roleQuery = (roleSearch?.value || "").toLowerCase().trim();
+    const locationQuery = (locationSearch?.value || "").toLowerCase().trim();
+    const selectedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value.toLowerCase());
+
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cardType = (card.getAttribute("data-type") || "").toLowerCase();
+      const cardTitle = (card.getAttribute("data-title") || card.querySelector(".job-title")?.textContent || "").toLowerCase();
+      const cardLocation = (card.getAttribute("data-location") || card.querySelector(".job-meta")?.textContent || "").toLowerCase();
+
+      const matchesType = selectedTypes.length === 0 || selectedTypes.includes(cardType);
+      const matchesRole = cardTitle.includes(roleQuery);
+      const matchesLocation = cardLocation.includes(locationQuery);
+      const isVisible = matchesType && matchesRole && matchesLocation;
+
+      card.style.display = isVisible ? "" : "none";
+      if (isVisible) visibleCount++;
+    });
+
+    if (fallbackState) {
+      fallbackState.style.display = visibleCount > 0 ? "none" : "block";
+    }
+
+    if (jobsCountBadge) {
+      jobsCountBadge.textContent = `${visibleCount} Total`;
+    }
+
+    currentJobIndex = 0;
+    updateJobsCarousel();
+  }
+
   if (filterToggleBtn && filtersDrawer) {
     filterToggleBtn.addEventListener("click", () => {
       const isOpen = filtersDrawer.classList.contains("open");
@@ -415,88 +391,22 @@ function initJobsEngine() {
     });
   }
 
-  // Render Logic
-  function renderJobsList(jobsArray) {
-    jobsListWrapper.innerHTML = "";
-
-    if (jobsArray.length === 0) {
-      fallbackState.style.display = "block";
-      jobsCountBadge.textContent = "0 Total";
-      currentJobIndex = 0;
-      updateJobsCarousel();
-      return;
-    }
-
-    fallbackState.style.display = "none";
-    jobsCountBadge.textContent = `${jobsArray.length} Total`;
-
-    jobsArray.forEach(job => {
-      const typeClass = job.type.toLowerCase().replace(" ", "-");
-      const cardHTML = `
-        <div class="card job-card">
-          <div class="job-card-header">
-            <div>
-              <h3 class="job-title">${job.title}</h3>
-              <p class="job-company">${job.company}</p>
-            </div>
-            <span class="status-pill ${typeClass}">${job.type}</span>
-          </div>
-          <p class="job-desc">${job.description}</p>
-          <div class="job-meta">
-            <span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              ${job.location}
-            </span>
-            <span>${job.salary} / mo</span>
-            <span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              ${job.posted}
-            </span>
-          </div>
-        </div>
-      `;
-      jobsListWrapper.insertAdjacentHTML("beforeend", cardHTML);
-    });
-
-    // Reset carousel index and position on repaint/filter
-    currentJobIndex = 0;
-    updateJobsCarousel();
+  if (searchBtn) {
+    searchBtn.addEventListener("click", renderJobsList);
   }
 
-  // Filter & Search Execution
-  function handleFilterSearch() {
-    const roleQuery = roleSearch.value.toLowerCase().trim();
-    const locationQuery = locationSearch.value.toLowerCase().trim();
-    
-    // Read checked filter options
-    const checkedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked'))
-                              .map(cb => cb.value.toLowerCase());
-
-    const filtered = jobs.filter(job => {
-      const matchesRole = job.title.toLowerCase().includes(roleQuery);
-      const matchesLocation = job.location.toLowerCase().includes(locationQuery);
-      
-      const matchesType = checkedTypes.length === 0 || checkedTypes.includes(job.type.toLowerCase());
-
-      return matchesRole && matchesLocation && matchesType;
-    });
-
-    renderJobsList(filtered);
+  if (roleSearch) {
+    roleSearch.addEventListener("keyup", renderJobsList);
   }
 
-  // Bind Listeners
-  if (searchBtn) searchBtn.addEventListener("click", handleFilterSearch);
-  
-  // Real-time filtering as you type
-  if (roleSearch) roleSearch.addEventListener("keyup", handleFilterSearch);
-  if (locationSearch) locationSearch.addEventListener("keyup", handleFilterSearch);
-  
-  // Real-time update on filter changes
+  if (locationSearch) {
+    locationSearch.addEventListener("keyup", renderJobsList);
+  }
+
   document.querySelectorAll('input[name="type"]').forEach(cb => {
-    cb.addEventListener("change", handleFilterSearch);
+    cb.addEventListener("change", renderJobsList);
   });
 
-  // Carousel Button Listeners
   if (prevBtn) {
     prevBtn.addEventListener("click", () => {
       if (currentJobIndex > 0) {
@@ -508,9 +418,9 @@ function initJobsEngine() {
 
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
-      const cards = jobsListWrapper.querySelectorAll(".job-card");
+      const visibleCards = Array.from(jobsListWrapper.querySelectorAll(".job-card")).filter(card => card.style.display !== "none");
       const cardsToShow = 2;
-      const maxIndex = Math.max(0, cards.length - cardsToShow);
+      const maxIndex = Math.max(0, visibleCards.length - cardsToShow);
       if (currentJobIndex < maxIndex) {
         currentJobIndex++;
         updateJobsCarousel();
@@ -518,9 +428,6 @@ function initJobsEngine() {
     });
   }
 
-  // Recalculate alignments on resizing
   window.addEventListener("resize", updateJobsCarousel);
-
-  // Initial Paint
-  renderJobsList(jobs);
+  renderJobsList();
 }
