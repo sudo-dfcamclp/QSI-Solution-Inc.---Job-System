@@ -14,29 +14,28 @@ try {
         $input = json_decode(file_get_contents('php://input'), true);
         
         $title = trim($input['title'] ?? '');
+        $company = trim($input['company'] ?? ''); // ADDED
         $description = trim($input['description'] ?? '');
         $salary = floatval($input['salary'] ?? 0);
         $location = trim($input['location'] ?? '');
-        $job_type = trim($input['job_type'] ?? 'Full-time'); // Default to Full-time if not provided
+        $job_type = trim($input['job_type'] ?? 'Full-time');
 
         // Validate required fields
-        if (empty($title)) {
-            throw new Exception("Job title is required.");
-        }
-        if (empty($location)) {
-            throw new Exception("Job location is required.");
-        }
+        if (empty($title)) throw new Exception("Job title is required.");
+        if (empty($company)) throw new Exception("Company name is required."); // ADDED
+        if (empty($location)) throw new Exception("Job location is required.");
 
-        // 3. USE THE REUSABLE FUNCTION instead of raw SQL
-        $new_job_id = insertJob($pdo, $title, $description, $salary, $location, $job_type);
+        // USE THE REUSABLE FUNCTION
+        // Note: Order matches your function definition: title, company, description...
+        $new_job_id = insertJob($pdo, $title, $company, $description, $salary, $location, $job_type);
 
         ob_end_clean();
         echo json_encode([
             'status'  => 'success',
             'message' => 'Job added successfully!',
-            'job_id'  => $new_job_id // Optional: useful for frontend if needed
+            'job_id'  => $new_job_id
         ]);
-        exit; // Stop execution after saving
+        exit;
     }
 
      // HANDLE PUT: Update an existing job
@@ -45,31 +44,24 @@ try {
         
         $job_id = intval($input['job_id'] ?? 0);
         $title = trim($input['title'] ?? '');
+        $company = trim($input['company'] ?? ''); // ADDED
         $description = trim($input['description'] ?? '');
         $salary = floatval($input['salary'] ?? 0);
         $location = trim($input['location'] ?? '');
-        $job_type = trim($input['job_type'] ?? 'Full-time'); // Default to Full-time if not provided
+        $job_type = trim($input['job_type'] ?? 'Full-time');
 
         // Validate required fields
-        if ($job_id <= 0) {
-            throw new Exception("Invalid Job ID.");
-        }
-        if (empty($title)) {
-            throw new Exception("Job title is required.");
-        }
-        if (empty($location)) {
-            throw new Exception("Job location is required.");
-        }
+        if ($job_id <= 0) throw new Exception("Invalid Job ID.");
+        if (empty($title)) throw new Exception("Job title is required.");
+        if (empty($company)) throw new Exception("Company name is required."); // ADDED
+        if (empty($location)) throw new Exception("Job location is required.");
 
-        // Call the update function from include_joblist.php
-        $isUpdated = updateJob($pdo, $job_id, $title, $description, $salary, $location, $job_type);
+        // Call the update function
+        $isUpdated = updateJob($pdo, $job_id, $title, $company, $description, $salary, $location, $job_type);
 
         if ($isUpdated) {
             ob_end_clean();
-            echo json_encode([
-                'status'  => 'success',
-                'message' => 'Job updated successfully.'
-            ]);
+            echo json_encode(['status' => 'success', 'message' => 'Job updated successfully.']);
         } else {
             throw new Exception("Failed to update job.");
         }
@@ -81,19 +73,13 @@ try {
         $input = json_decode(file_get_contents('php://input'), true);
         $job_id = intval($input['job_id'] ?? 0);
 
-        if ($job_id <= 0) {
-            throw new Exception("Invalid Job ID.");
-        }
+        if ($job_id <= 0) throw new Exception("Invalid Job ID.");
 
-        // Call the delete function from include_joblist.php
         $isDeleted = deleteJob($pdo, $job_id);
 
         if ($isDeleted) {
             ob_end_clean();
-            echo json_encode([
-                'status'  => 'success',
-                'message' => 'Job deleted successfully.'
-            ]);
+            echo json_encode(['status' => 'success', 'message' => 'Job deleted successfully.']);
         } else {
             throw new Exception("Failed to delete job or job not found.");
         }
@@ -109,7 +95,8 @@ try {
         $cleanJobs[] = [
             'job_id'      => $job['job_id'],
             'title'       => $job['title'] ?? 'No Title',
-            'description1' => $job['description1'] ?? '',
+            'company1'    => $job['company1'] ?? 'N/A', // ADDED
+            'description1'=> $job['description1'] ?? '',
             'salary1'     => $job['salary1'] ?? 0,
             'location1'   => $job['location1'] ?? 'N/A',
             'job_type'    => $job['job_type'] ?? 'Full-time',
@@ -132,7 +119,7 @@ try {
     echo json_encode([
         'status'  => 'error',
         'message' => 'Failed to process request.',
-        'debug'   => $e->getMessage() // Remove 'debug' in production
+        'debug'   => $e->getMessage()
     ]);
 }
 ?>

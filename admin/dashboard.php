@@ -38,60 +38,57 @@ if (!isset($_SESSION['user_id'])) {
             <div class="p-8">
 
                             <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    
-                    <!-- 1. Total Jobs -->
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-sm font-medium text-blue-600">Total Jobs</h3>
-                                <p class="text-3xl font-bold text-slate-800 mt-2" id="statTotalJobs">0</p>
-                            </div>
-                            <div class="bg-blue-500/20 p-3 rounded-xl">
-                                <i class="fa-solid fa-briefcase text-blue-600 text-2xl"></i>
-                            </div>
+               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                
+                <!-- 1. Total Jobs -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-blue-600">Total Jobs</h3>
+                            <p class="text-3xl font-bold text-slate-800 mt-2" id="statTotalJobs">0</p>
+                        </div>
+                        <div class="bg-blue-500/20 p-3 rounded-xl">
+                            <i class="fa-solid fa-briefcase text-blue-600 text-2xl"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 2. Total Admins -->
-                    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-sm font-medium text-emerald-600">Total Admins</h3>
-                                <p class="text-3xl font-bold text-slate-800 mt-2" id="statTotalAdmins">0</p>
-                            </div>
-                            <div class="bg-emerald-500/20 p-3 rounded-xl">
-                                <i class="fa-solid fa-user-shield text-emerald-600 text-2xl"></i>
-                            </div>
+                <!-- 2. Total Admins -->
+                <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-emerald-600">Total Admins</h3>
+                            <p class="text-3xl font-bold text-slate-800 mt-2" id="statTotalAdmins">0</p>
+                        </div>
+                        <div class="bg-emerald-500/20 p-3 rounded-xl">
+                            <i class="fa-solid fa-user-shield text-emerald-600 text-2xl"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 3. Latest Job Post (Title) -->
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <div class="flex items-center justify-between">
-                            <div class="overflow-hidden">
-                                <h3 class="text-sm font-medium text-purple-600">Latest Job Post</h3>
-                                <p class="text-lg font-bold text-slate-800 mt-2 truncate" id="statLatestJobTitle" title="No jobs yet">No jobs yet</p>
-                            </div>
-                            <div class="bg-purple-500/20 p-3 rounded-xl flex-shrink-0">
-                                <i class="fa-solid fa-star text-purple-600 text-2xl"></i>
+                <!-- 3. Latest Job Post (Combined Title & Date) -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
+                    <div class="flex items-start justify-between">
+                        <!-- Text Content -->
+                        <div class="overflow-hidden pr-4">
+                            <h3 class="text-sm font-medium text-purple-600">Latest Job Post</h3>
+                            <p class="text-lg font-bold text-slate-800 mt-1 truncate" id="statLatestJobTitle" title="No jobs yet">No jobs yet</p>
+                            
+                            <!-- Date Posted -->
+                            <div class="flex items-center gap-2 mt-2 text-sm text-slate-600">
+                                <i class="fa-solid fa-calendar-day text-purple-500"></i>
+                                <span id="statLatestJobDate">N/A</span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- 4. Latest Job Post (Date) -->
-                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-6 hover:shadow-lg transition duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-sm font-medium text-orange-600">Posted On</h3>
-                                <p class="text-xl font-bold text-slate-800 mt-2" id="statLatestJobDate">N/A</p>
-                            </div>
-                            <div class="bg-orange-500/20 p-3 rounded-xl">
-                                <i class="fa-solid fa-calendar-day text-orange-600 text-2xl"></i>
-                            </div>
+                        
+                        <!-- Icon -->
+                        <div class="bg-purple-500/20 p-3 rounded-xl flex-shrink-0">
+                            <i class="fa-solid fa-star text-purple-600 text-2xl"></i>
                         </div>
                     </div>
+                </div>
 
+            
                 </div>
 
                         <!-- Filter Buttons -->

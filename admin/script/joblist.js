@@ -31,6 +31,10 @@ function showAddJobPopup() {
         title: 'Add New Job',
         html: `
             <input id="swal-title" class="swal2-input" placeholder="Job Title" style="width: 100%; box-sizing: border-box; margin: 0.5em 0;">
+            
+            <!-- ADDED: Company Input -->
+            <input id="swal-company" class="swal2-input" placeholder="Company Name" style="width: 100%; box-sizing: border-box; margin: 0.5em 0;">
+            
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Job Description" style="width: 100%; box-sizing: border-box; margin: 0.5em 0; resize: vertical;"></textarea>
             
             <!-- Job Type Dropdown -->
@@ -52,25 +56,18 @@ function showAddJobPopup() {
         focusConfirm: false,
         preConfirm: () => {
             const title = document.getElementById('swal-title').value.trim();
+            const company = document.getElementById('swal-company').value.trim(); // ADDED
             const description = document.getElementById('swal-desc').value.trim();
             const salary = document.getElementById('swal-salary').value.trim();
             const location = document.getElementById('swal-location').value.trim();
-            const job_type = document.getElementById('swal-job-type').value; // Get selected job type
+            const job_type = document.getElementById('swal-job-type').value;
 
-            if (!title) {
-                Swal.showValidationMessage('Job Title is required');
-                return false;
-            }
-            if (!location) {
-                Swal.showValidationMessage('Location is required');
-                return false;
-            }
-            if (!job_type) {
-                Swal.showValidationMessage('Please select a Job Type');
-                return false;
-            }
+            if (!title) { Swal.showValidationMessage('Job Title is required'); return false; }
+            if (!company) { Swal.showValidationMessage('Company Name is required'); return false; } // ADDED
+            if (!location) { Swal.showValidationMessage('Location is required'); return false; }
+            if (!job_type) { Swal.showValidationMessage('Please select a Job Type'); return false; }
 
-            return { title, description, salary, location, job_type };
+            return { title, company, description, salary, location, job_type };
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -81,13 +78,18 @@ function showAddJobPopup() {
 
 // --- SWEETALERT2 POPUP FOR EDITING ---
 function editJob(job) {
-    // Determine current job type to set as selected (default to 'Full-Time' if missing)
     const currentType = job.job_type || 'Full-Time'; 
+    // Use company1 from the object passed by renderTablePage
+    const currentCompany = job.company1 || ''; 
 
     Swal.fire({
         title: 'Edit Job',
         html: `
             <input id="edit-title" class="swal2-input" value="${escapeHtml(job.title)}" placeholder="Job Title" style="width: 100%; box-sizing: border-box; margin: 0.5em 0;">
+            
+            <!-- ADDED: Company Input for Edit -->
+            <input id="edit-company" class="swal2-input" value="${escapeHtml(currentCompany)}" placeholder="Company Name" style="width: 100%; box-sizing: border-box; margin: 0.5em 0;">
+            
             <textarea id="edit-desc" class="swal2-textarea" placeholder="Job Description" style="width: 100%; box-sizing: border-box; margin: 0.5em 0; resize: vertical;">${escapeHtml(job.description1)}</textarea>
             
             <!-- Job Type Dropdown for Editing -->
@@ -108,23 +110,20 @@ function editJob(job) {
         focusConfirm: false,
         preConfirm: () => {
             const title = document.getElementById('edit-title').value.trim();
+            const company = document.getElementById('edit-company').value.trim(); // ADDED
             const description = document.getElementById('edit-desc').value.trim();
             const salary = document.getElementById('edit-salary').value.trim();
             const location = document.getElementById('edit-location').value.trim();
-            const job_type = document.getElementById('edit-job-type').value; // Get selected job type
+            const job_type = document.getElementById('edit-job-type').value;
 
-            if (!title) {
-                Swal.showValidationMessage('Job Title is required');
-                return false;
-            }
-            if (!location) {
-                Swal.showValidationMessage('Location is required');
-                return false;
-            }
+            if (!title) { Swal.showValidationMessage('Job Title is required'); return false; }
+            if (!company) { Swal.showValidationMessage('Company Name is required'); return false; } // ADDED
+            if (!location) { Swal.showValidationMessage('Location is required'); return false; }
 
             return { 
                 job_id: job.job_id, 
                 title, 
+                company, // ADDED
                 description, 
                 salary,
                 location,
@@ -153,7 +152,7 @@ async function saveJob(jobData) {
 
         if (result.status === 'success') {
             Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 1500, showConfirmButton: false });
-            currentPage = 1; // Reset to page 1 when adding new job
+            currentPage = 1; 
             lastJobCount = 0; 
             loadJobs(); 
         } else {
@@ -267,7 +266,7 @@ async function loadJobs(isBackgroundUpdate = false) {
         console.error('Error fetching jobs:', error);
         if (!isBackgroundUpdate && !lastJobCount && loadingState) {
             loadingState.classList.add('hidden');
-            document.getElementById('jobTableBody').innerHTML = `<tr><td colspan="8" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
+            document.getElementById('jobTableBody').innerHTML = `<tr><td colspan="9" class="p-4 text-red-500 text-center">Error loading data. Check console.</td></tr>`;
         }
     }
 }
@@ -282,7 +281,6 @@ function renderTablePage() {
     
     const totalPages = Math.ceil(allJobsData.length / itemsPerPage) || 1;
     
-    // Ensure currentPage is valid (e.g., if last item was deleted)
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
 
@@ -301,9 +299,14 @@ function renderTablePage() {
                 year: 'numeric', month: 'short', day: 'numeric'
             });
 
+            // ADDED: company1 to the JSON stringify for editJob
             row.innerHTML = `
                 <td class="p-3 font-medium text-slate-500 text-center" style="width: 60px; min-width: 60px;">#${job.job_id}</td>
                 <td class="p-3 font-semibold text-slate-800 truncate" style="width: 140px; max-width: 140px;" title="${escapeHtml(job.title)}">${escapeHtml(job.title)}</td>
+                
+                <!-- ADDED: Company Column -->
+                <td class="p-3 text-slate-600 truncate" style="width: 150px; max-width: 150px;" title="${escapeHtml(job.company1)}">${escapeHtml(job.company1)}</td>
+                
                 <td class="p-3 text-slate-600 truncate" style="width: 200px; max-width: 200px;" title="${escapeHtml(job.description1)}">${escapeHtml(job.description1)}</td>
                 <td class="p-3 text-slate-700 font-medium whitespace-nowrap" style="width: 120px;">₱${Number(job.salary1 || 0).toLocaleString()}</td>
                 <td class="p-3 text-slate-500 whitespace-nowrap truncate" style="width: 130px; max-width: 130px;" title="${escapeHtml(job.location1)}">${escapeHtml(job.location1)}</td>
@@ -353,7 +356,6 @@ function renderTablePage() {
 function changePage(direction) {
     currentPage += direction;
     renderTablePage();
-    // Smooth scroll back to top of table
     document.querySelector('.overflow-x-auto').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
